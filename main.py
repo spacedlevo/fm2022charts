@@ -12,15 +12,10 @@ font_bold = FontManager(("https://github.com/google/fonts/blob/main/apache/robot
 
 
 df = pd.read_csv('moneyball.csv', na_values=['-'])
+df.dropna(subset=['Name'], inplace=True)
+df.fillna(0, inplace=True)
 plt.style.use('dark_background')
-# df['npGoals/90'] = (df['Gls'] - df['Pens S']) / (df['Mins'].str.replace(',','').astype('int') / 90)
-# df['Asts/90'] = df['Asts/90'].str.replace('-', '0').astype(float)
-# df['Ch C/90'] = df['Ch C/90'].str.replace('-', '0').astype(float)
-# df['K Ps/90'] = df['K Ps/90'].str.replace('-', '0').astype(float)
-# df['Hdrs W/90'] = df['Hdrs W/90'].str.replace('-','0').astype(float)
-# df['Int/90'] = df['Int/90'].str.replace('-','0').astype(float)
-# df['Drb/90'] = df['Drb/90'].str.replace('-','0').astype(float)
-
+df['npGoals/90'] = (df['Gls'] - df['Pens S']) / (df['Mins'].str.replace(',','').astype('float') / 90)
 positons_map = {}
 for position in df['Position'].unique():
     if position.startswith('G'):
@@ -251,6 +246,10 @@ def midfielder_pizza(df, player):
     ])
     plt.savefig(f'{player}_pizza.png')
 
+df.replace(',','', regex=True, inplace=True)
+df['Mins'] = df['Mins'].astype(int)
+df = df.loc[(df['Mins'] > 800) & (df['Age'] < 23)]
+
 defenders = df.loc[df['Position Category'] == 'Defender']
 forwards = df.loc[df['Position Category'] == 'Forward']
 mids = df.loc[df['Position Category'] == 'Midfielder']
@@ -258,10 +257,8 @@ mids.reset_index(inplace=True)
 forwards.reset_index(inplace=True)
 defenders.reset_index(inplace=True)
 
-# create_scattergram(forwards['Name'], forwards['npxG per 90'], forwards['npGoals/90'], 'npxG/90 v npGoals/90')
-# create_scattergram(forwards['Name'], forwards['npGoals/90'], forwards['Asts/90'], 'Asts/90 v npGoals/90')
-# create_scattergram(mids['Name'], mids['Ch C/90'], mids['Asts/90'], 'Asts/90 v Chances Created/90')
-# create_scattergram(mids['Name'], mids['K Ps/90'], mids['Asts/90'], 'Key Passes/90 v Assists/90')
-# create_scattergram(defenders['Name'], defenders['Int/90'], defenders['Hdrs W/90'], 'Interceptions/90 v Headers Won/90')
-midfielder_pizza(df, 'Michaël Cuisance')
-midfielder_pizza(df, 'Christoph Baumgartner')
+create_scattergram(forwards['Name'], forwards['npxG per 90'], forwards['npGoals/90'], 'npxG/90 v npGoals/90')
+create_scattergram(forwards['Name'], forwards['npGoals/90'], forwards['Asts/90'], 'Asts/90 v npGoals/90')
+create_scattergram(mids['Name'], mids['Ch C/90'], mids['Asts/90'], 'Asts/90 v Chances Created/90')
+create_scattergram(mids['Name'], mids['K Ps/90'], mids['Asts/90'], 'Key Passes/90 v Assists/90')
+create_scattergram(defenders['Name'], defenders['Int/90'], defenders['Hdrs W/90'], 'Interceptions/90 v Headers Won/90')
